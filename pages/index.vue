@@ -16,10 +16,12 @@
         </thead>
         <tbody>
           <tr v-for="marker in markers" :key="marker.id">
+            
             <td>{{ marker.id }}</td>
             <td>{{ marker.name }}</td>
             <td>{{ marker.latitude.toFixed(6) }}</td>
             <td>{{ marker.longitude.toFixed(6) }}</td>
+            
           </tr>
         </tbody>
       </table>
@@ -29,6 +31,7 @@
         <button @click="startAddingMarker" v-if="!addingMarker">➕ Yeni Marker Ekle</button>
         <button @click="saveNewMarker" v-if="addingMarker">✅ Kaydet</button>
         <button @click="cancelAddingMarker" v-if="addingMarker">❌ İptal</button>
+        
       </div>
     </div>
   </template>
@@ -60,11 +63,12 @@
     }
   
     markers.value = data
-  
+    //Marker Silme
+   
     // Harita oluşturma
     map.value = L.map('map').setView([data[0]?.latitude || 0, data[0]?.longitude || 0], 5)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map.value)
-  
+    
     // Marker ekleme
     data.forEach((marker, index) => {
       const leafletMarker = L.marker([marker.latitude, marker.longitude], { draggable: true }).addTo(map.value)
