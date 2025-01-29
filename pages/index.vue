@@ -39,8 +39,10 @@
   
   // Supabase bağlantısı
   const config = useRuntimeConfig()
-  const supabase = createClient("https://vdkqabfltwawewqxnyrh.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZka3FhYmZsdHdhd2V3cXhueXJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzczNjkyMjcsImV4cCI6MjA1Mjk0NTIyN30.4OsViEW2qegFVb0yFXWyPHctxPAgaAOUNyqTCZNm18c")
-  
+  const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL, 
+  import.meta.env.VITE_SUPABASE_KEY
+)
   // Reaktif değişkenler
   const markers = ref([])
   const map = ref(null)
