@@ -29,6 +29,7 @@
           <button @click="toggleEdit(marker)" class="btn btn-edit">
             {{ editingMarkers[marker.id] ? 'Kaydet' : 'Düzenle' }}
           </button>
+          <button @click="deleteMarker(marker)" class="btn btn-delete">Sil</button>
         </td>
       </tr>
     </tbody>
@@ -39,7 +40,7 @@
 import { reactive } from 'vue';
 
 const props = defineProps({ markers: Array });
-const emit = defineEmits(['update-marker', 'edit-marker']);
+const emit = defineEmits(['update-marker', 'edit-marker', 'delete-marker']);
 
 // Her marker için düzenleme durumunu saklayan bir nesne
 const editingMarkers = reactive({});
@@ -50,6 +51,13 @@ const toggleEdit = (marker) => {
   if (!editingMarkers[marker.id]) {
     // Düzenlemeyi kaydetme
     emit('edit-marker', marker);
+  }
+};
+
+// Silme işlevi
+const deleteMarker = (marker) => {
+  if (confirm(`Marker ${marker.name} silinsin mi?`)) {
+    emit('delete-marker', marker);
   }
 };
 </script>
@@ -109,6 +117,11 @@ input[type="number"], input[type="text"] {
 
 .btn-edit {
   background-color: #4CAF50;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #F44336;
   color: white;
 }
 

@@ -110,6 +110,21 @@ export function useMap() {
     map.value.off('click', addTemporaryMarker);
   };
 
+  const deleteMarker = async (marker) => {
+    const { error } = await supabase
+      .from('markers')
+      .delete()
+      .eq('id', marker.id);
+    
+    if (error) {
+      console.error('Marker Silme Hatası:', error);
+      return;
+    }
+
+    // Silinen marker'ı listeden çıkar
+    markers.value = markers.value.filter(m => m.id !== marker.id);
+  };
+
   // Marker eklemeyi iptal et
   const cancelAddingMarker = () => {
     if (tempMarker.value) {
@@ -127,6 +142,7 @@ export function useMap() {
     startAddingMarker,
     saveNewMarker,
     cancelAddingMarker,
-    updateMarkerInSupabase
+    updateMarkerInSupabase,
+    deleteMarker
   };
 }
