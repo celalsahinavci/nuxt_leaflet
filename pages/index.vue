@@ -1,14 +1,8 @@
 <template>
   <div class="container">
     <div id="map"></div>
-
-    <h2>{{ addingMarker ? "Yeni Marker Ekleniyor..." : "Mevcut Markerlar" }}</h2>
-    
-    
-    
-    <MarkerTable :markers="markers" @update-marker="handleMarkerUpdate" />
-   
-
+    <h2>{{ addingMarker ? "Yeni Marker Ekleniyor..." : "Mevcut Markerlar" }}</h2>   
+    <MarkerTable :markers="markers" @update-marker="handleMarkerUpdate" @edit-marker="handleEditUpdate" />
 
     <div class="button-group">
       <button @click="startAddingMarker" v-if="!addingMarker">➕ Yeni Marker Ekle</button>
@@ -19,11 +13,12 @@
 </template>
 
 <script setup>
-import { useMap } from '@/composable/useMap'
-import MarkerTable from '@/components/MarkerTable.vue'
+import { ref } from 'vue';
+import { useMap } from '@/composable/useMap';
+import MarkerTable from '@/components/MarkerTable.vue';
 
+const { map,markers, addingMarker, startAddingMarker, saveNewMarker, cancelAddingMarker, updateMarkerInSupabase } = useMap();
 
- 
 const handleMarkerUpdate = (marker) => {
   console.log("Seçilen Marker:", marker);
 
@@ -35,8 +30,10 @@ const handleMarkerUpdate = (marker) => {
   }
 };
 
-
-const { markers, addingMarker, startAddingMarker, saveNewMarker, cancelAddingMarker,map } = useMap()
+const handleEditUpdate = (marker) => {
+  // Düzenleme işlemi başlatılacak
+  updateMarkerInSupabase(marker);
+};
 </script>
   
   <style scoped>
