@@ -33,7 +33,7 @@ export function useMap() {
     // Marker ekleme
     data.forEach((marker, index) => {
       const leafletMarker = L.marker([marker.latitude, marker.longitude], { draggable: true }).addTo(map.value)
-  
+      
       leafletMarker.on('dragend', async (event) => {
         const newLatLng = event.target.getLatLng()
         markers.value[index] = { ...markers.value[index], latitude: newLatLng.lat, longitude: newLatLng.lng }

@@ -25,9 +25,18 @@ import MarkerTable from '@/components/MarkerTable.vue'
 
  
 const handleMarkerUpdate = (marker) => {
-  console.log("Seçilen Marker:", marker)  
-}
-const { markers, addingMarker, startAddingMarker, saveNewMarker, cancelAddingMarker } = useMap()
+  console.log("Seçilen Marker:", marker);
+
+  // Eğer harita mevcutsa
+  if (map.value) {
+    map.value.setView([marker.latitude, marker.longitude], 10); // Marker'a göre haritayı merkezle
+  } else {
+    console.warn('Harita yüklendiğinde, marker merkezleme işlemi yapılacak.');
+  }
+};
+
+
+const { markers, addingMarker, startAddingMarker, saveNewMarker, cancelAddingMarker,map } = useMap()
 </script>
   
   <style scoped>
