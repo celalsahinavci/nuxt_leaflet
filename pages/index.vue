@@ -2,7 +2,7 @@
   <div class="container">
     <div id="map"></div>
     <h2>{{ addingMarker ? "Yeni Marker Ekleniyor..." : "Mevcut Markerlar" }}</h2>   
-    <MarkerTable :markers="markers" :isEditing="isEditing" @update-marker="handleMarkerUpdate" @edit-marker="handleEditUpdate" @delete-marker="handleDeleteMarker" />
+      <MarkerTable :markers="markers" :isEditing="isEditing" @update-marker="handleMarkerUpdate" @edit-marker="handleEditUpdate" @delete-marker="handleDeleteMarker" />
     <div class="button-group">
       <button @click="startAddingMarker" v-if="!addingMarker">➕ Yeni Marker Ekle</button>
       <button @click="saveNewMarker" v-if="addingMarker">✅ Kaydet</button>
@@ -26,18 +26,20 @@ const handleMarkerUpdate = (marker) => {
   }
 };
 
-const isEditing = ref(false);
-
-const handleEditUpdate = (value) => {
-  isEditing.value = value; // Gelen değeri güncelle
-};
 
 const handleDeleteMarker = (marker) => {
   // Supabase'den silme işlemini çağırıyoruz
   deleteMarker(marker);
 };
+const isEditing = ref(false)
+  const handleEditUpdate = ({ marker, isEditing }) => {       
+     // Gelen değeri güncelle
+    toggleEdit(marker); 
+    
+    updateMarkerInSupabase(marker)
+  };
 
-const { markers, addingMarker, startAddingMarker, saveNewMarker, cancelAddingMarker, deleteMarker, map } = useMap()
+const { markers, addingMarker, startAddingMarker, saveNewMarker, cancelAddingMarker, deleteMarker,map,updateMarkerInSupabase,toggleEdit } = useMap()
 </script>
   
   <style scoped>

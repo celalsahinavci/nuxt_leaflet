@@ -1,25 +1,37 @@
 import { ref, onMounted } from 'vue';
 import { createClient } from '@supabase/supabase-js';
 
+
 export function useMap() {
-  // Supabase bağlantısı
+  
   const supabase = createClient(
     import.meta.env.VITE_SUPABASE_URL,
     import.meta.env.VITE_SUPABASE_KEY
   );
 
-  // Reaktif değişkenler
-  const markers = ref([]); // Marker'ları tutacak dizi
-  const map = ref(null); // Harita
-  const addingMarker = ref(false); // Marker ekleme durumu
-  const tempMarker = ref(null); // Geçici marker
+  
+  const markers = ref([]); 
+  const map = ref(null); 
+  const addingMarker = ref(false); 
+  const tempMarker = ref(null); 
+  const editingMarkers = ref({});
 
-  // Supabase'den veri alma
+  const toggleEdit = (marker) => {
+    // Eğer marker düzenleme moduna giriyorsa, draggable yap
+    editingMarkers.value[marker.id] = !editingMarkers.value[marker.id];
+  
+    // Haritadaki marker'ı bul ve draggable özelliğini güncelle
+    const leafletMarker = map.value?.eachLayer(layer => {
+      if (layer instanceof L.Marker && layer.getLatLng().lat === marker.latitude && layer.getLatLng().lng === marker.longitude) {
+        layer.dragging[editingMarkers.value[marker.id] ? 'enable' : 'disable']();
+      }
+    });
+  };
+  
   onMounted(async () => {
     if (typeof window === 'undefined') return;
     const L = await import('leaflet');
-
-    // Veritabanından marker verilerini al
+    
     const { data, error } = await supabase.from('markers').select('*');
     if (error) {
       console.error('Supabase Hatası:', error);
@@ -28,15 +40,14 @@ export function useMap() {
 
     markers.value = data;
 
-    // Harita oluşturma
+    
     map.value = L.map('map').setView([data[0]?.latitude || 0, data[0]?.longitude || 0], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map.value);
 
-    // Mevcut marker'ları haritaya ekle
+    
     data.forEach((marker) => {
-      const leafletMarker = L.marker([marker.latitude, marker.longitude], { draggable: true }).addTo(map.value);
+      const leafletMarker = L.marker([marker.latitude, marker.longitude], { draggable: false }).addTo(map.value);
 
-      // Marker taşındığında, yeni koordinatları Supabase'e kaydet
       leafletMarker.on('dragend', async (event) => {
         const newLatLng = event.target.getLatLng();
         const updatedMarker = { ...marker, latitude: newLatLng.lat, longitude: newLatLng.lng };
@@ -68,7 +79,8 @@ export function useMap() {
       console.log('Marker güncellendi:', data);
     }
   };
-
+  ;
+ 
   // Yeni marker eklemek için başlat
   const startAddingMarker = () => {
     addingMarker.value = true;
@@ -143,6 +155,8 @@ export function useMap() {
     saveNewMarker,
     cancelAddingMarker,
     updateMarkerInSupabase,
-    deleteMarker
+    deleteMarker,
+    toggleEdit
+   
   };
 }

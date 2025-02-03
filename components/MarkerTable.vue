@@ -26,10 +26,19 @@
         </td>
         <td>
           <button @click="$emit('update-marker', marker)" class="btn btn-view">Konuma Git</button>
-          <button @click="toggleEdit(marker)" class="btn btn-edit">
-            {{ editingMarkers[marker.id] ? 'Kaydet' : 'Düzenle' }}
-          </button>
-          <button @click="deleteMarker(marker)" class="btn btn-delete">Sil</button>
+        
+          <button 
+    @click="toggleEdit(marker)" 
+    v-if="!editingMarkers[marker.id]" 
+    class="btn btn-edit">Düzenle
+   
+  </button>
+  <button 
+    @click="toggleEdit(marker)" 
+    v-if="editingMarkers[marker.id]" 
+    class="btn btn-save">
+    Kaydet
+  </button>
         </td>
       </tr>
     </tbody>
@@ -40,7 +49,7 @@
 import { reactive } from 'vue';
 
 const props = defineProps({ markers: Array });
-const emit = defineEmits(['update-marker', 'edit-marker', 'delete-marker']);
+const emit = defineEmits(['update-marker', 'edit-marker']);
 
 // Her marker için düzenleme durumunu saklayan bir nesne
 const editingMarkers = reactive({});
@@ -48,18 +57,12 @@ const editingMarkers = reactive({});
 // Düzenleme durumunu değiştir
 const toggleEdit = (marker) => {
   editingMarkers[marker.id] = !editingMarkers[marker.id];
-  if (!editingMarkers[marker.id]) {
-    // Düzenlemeyi kaydetme
-    emit('edit-marker', marker);
-  }
+
+// Düzenleme açıldığında draggable aktif etmesi için `emit` ile yukarı bildir
+emit('edit-marker', { marker, isEditing: editingMarkers[marker.id] }); 
+  
 };
 
-// Silme işlevi
-const deleteMarker = (marker) => {
-  if (confirm(`Marker ${marker.name} silinsin mi?`)) {
-    emit('delete-marker', marker);
-  }
-};
 </script>
 
 <style scoped>
@@ -117,11 +120,6 @@ input[type="number"], input[type="text"] {
 
 .btn-edit {
   background-color: #4CAF50;
-  color: white;
-}
-
-.btn-delete {
-  background-color: #F44336;
   color: white;
 }
 
