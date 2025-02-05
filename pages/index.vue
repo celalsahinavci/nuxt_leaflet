@@ -1,115 +1,49 @@
 <template>
-  <div class="container">
-    <div id="map"></div>
-    <h2>{{ addingMarker ? "Yeni Marker Ekleniyor..." : "Mevcut Markerlar" }}</h2>   
-      <MarkerTable :markers="markers" :isEditing="isEditing" @update-marker="handleMarkerUpdate" @edit-marker="handleEditUpdate" @delete-marker="handleDeleteMarker" />
-    <div class="button-group">
-      <button @click="startAddingMarker" v-if="!addingMarker">➕ Yeni Marker Ekle</button>
-      <button @click="saveNewMarker" v-if="addingMarker">✅ Kaydet</button>
-      <button @click="cancelAddingMarker" v-if="addingMarker">❌ İptal</button>
-    </div>
+  <div>
+    <LMap style="height: 100vh" :zoom="4" :center="[38, 40]">
+      <LTileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution="&copy; <a href='https://www.openstreetmap.org/'>OpenStreetMap</a> contributors"
+        layer-type="base"
+        name="OpenStreetMap"
+      />
+      <div v-for="marker in markers" :key="marker.id">
+        <LMarker :lat-lng="[marker.latitude, marker.longitude]">
+          <LPopup>
+            <div>
+              <p><strong>Marker Name:</strong> {{ marker.name }}</p>
+              <p><strong>Latitude:</strong> {{ marker.latitude }}</p>
+              <p><strong>Longitude:</strong> {{ marker.longitude }}</p>
+              <button @click="openBottomSheet(marker)">Detay</button>
+            </div>
+          </LPopup>
+        </LMarker>
+      </div>
+    </LMap>
+
+    <!-- Bottom Sheet Bileşeni -->
+    <BottomSheet :isOpen="isBottomSheetOpen" @close="isBottomSheetOpen = false">
+      <h3>Marker Detayları</h3>
+      <p><strong>İsim:</strong> {{ selectedMarker?.name }}</p>
+      <p><strong>Latitude:</strong> {{ selectedMarker?.latitude }}</p>
+      <p><strong>Longitude:</strong> {{ selectedMarker?.longitude }}</p>
+    </BottomSheet>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useMap } from '@/composable/useMap'
-import MarkerTable from '@/components/MarkerTable.vue'
+import BottomSheet from '@/components/BottomSheets.vue'
 
-const handleMarkerUpdate = (marker) => {
-  console.log("Seçilen Marker:", marker);
+const { markers } = useMap()
 
-  // Eğer harita mevcutsa
-  if (map.value) {
-    map.value.setView([marker.latitude, marker.longitude], 10); // Marker'a göre haritayı merkezle
-  } else {
-    console.warn('Harita yüklendiğinde, marker merkezleme işlemi yapılacak.');
-  }
-};
+const isBottomSheetOpen = ref(false)
+const selectedMarker = ref(null)
 
-
-const handleDeleteMarker = (marker) => {
-  // Supabase'den silme işlemini çağırıyoruz
-  deleteMarker(marker);
-};
-const isEditing = ref(false)
-  const handleEditUpdate = ({ marker, isEditing }) => {       
-     // Gelen değeri güncelle
-    toggleEdit(marker); 
-    
-    updateMarkerInSupabase(marker)
-  };
-
-const { markers, addingMarker, startAddingMarker, saveNewMarker, cancelAddingMarker, deleteMarker,map,updateMarkerInSupabase,toggleEdit } = useMap()
+// Bottom Sheet açma fonksiyonu
+const openBottomSheet = (marker) => {
+  selectedMarker.value = marker
+  isBottomSheetOpen.value = true
+}
 </script>
-  
-  <style scoped>
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
-  }
-  
-  #map {
-    width: 600px;
-    height: 400px;
-    border-radius: 16px;
-    border: 2px solid #ddd;
-    margin-bottom: 20px;
-  }
-  
-  h2 {
-    margin-bottom: 10px;
-    color: #333;
-  }
-  
-  table {
-    width: 600px;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: center;
-  }
-  
-  th {
-    background-color: #f4f4f4;
-  }
-  
-  .button-group {
-    display: flex;
-    gap: 10px;
-  }
-  
-  button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.3s;
-  }
-  
-  button:hover {
-    opacity: 0.8;
-  }
-  
-  button:nth-child(1) {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  button:nth-child(2) {
-    background-color: #2196F3;
-    color: white;
-  }
-  
-  button:nth-child(3) {
-    background-color: #F44336;
-    color: white;
-  }
-  </style>
-  ~/composable/useMap
